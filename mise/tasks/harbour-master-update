@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+#MISE description='Update shared workflows from the harbour-master'
+
+find . -name "*.hm.*"  ! -path '*/harbour-master/*' 
+
+#rm -v ./.github/workflows/*.hm.yml
+#rsync -va ../harbour-master/.github/workflows/*.hm.yml ./.github/workflows
+

@@ -1,0 +1,15 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../devops-cove-wip"
+		}
+	],
+	"settings": {
+		"debug.javascript.defaultRuntimeExecutable": {
+			"pwa-node": "/home/keith/.local/share/mise/shims/node"
+		}
+	}
+}
