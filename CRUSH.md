@@ -3,6 +3,7 @@
 ## Build Commands
 - `mise install` - Install tools from config.toml
 - `mise run <task>` - Run mise tasks (e.g. `mise run make-sh-exec`)
+- Local watchman: `mise run linus-local` (run from a keg pipeline dir)
 
 ## Test Commands
 - Test commands vary by submodule - check individual project READMEs
@@ -29,6 +30,21 @@
 ## Git Submodules
 - `git submodule update --init --recursive` - Initialize submodules
 - `git submodule update --remote` - Update submodule references
+- `mise run status-all` - Status for root and submodules
+- `MSG="<msg>" mise run commit-and-push-all` - Commit & push across repos
+- `mise run push-all` - Push root and submodules
 
 ## Code/Workflow Sharing
+
+The `developer-cove` project serves as a management hub for working on improvements to the eco-system.
+
+Harbour projects like `polerro` `fowey` `mevagissy` `looe` define build pipelines in a four level heirarchy;
+however here they should remain as fairly empty templates that enterprise user would clone/fork for different 
+contexts/use-cases/departments. Their users (The Navy) would populate their pipelines folders and github
+workflows will spot the changes and spawn build tasks. 
+
+However, the workflows are not required to be in these empty templates either. Instead they are managed in
+the `harbour-master` project. Where there is a 'menu' or 'bench' of available workflow actors. The Navy,
+configuring the local installation of a harbour will select the workflows from the 'harbour-master'. 
+Specifically a 'watchman', 'builders' and 'inspectors'.
 
