@@ -2,7 +2,7 @@
 #MISE description="Commit and push root and all submodules (.gitmodules)"
 set -euo pipefail
 
-msg="${MSG:-chore: sync changes}"
+msg="${MSG:-chore\: sync changes}"
 
 commit_push() {
   repo_dir="$1"
