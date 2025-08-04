@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 #MISE description="Commit and push root and all submodules (.gitmodules)"
 set -euo pipefail
-
 msg="${MSG:-chore: sync changes}"
 
 commit_push() {
@@ -21,6 +20,6 @@ commit_push() {
 
 commit_push "."
 
-git submodule foreach 'git add -A && (git diff --cached --quiet || git commit -m "'$msg'" || true) && git push || true' || true
+git submodule foreach 'git add -A && (git diff --cached --quiet || git commit -m "$msg" || true) && git push || true' || true
 
 echo "Done."
