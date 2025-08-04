@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+#MISE description="Local build runner: infer PIPELINE from CWD, load env, run pre-build hooks, call build.sh"
+set -euo pipefail
+
+PIPELINE="${PIPELINE:-$PWD}"
+BRANCH="${BRANCH:-$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo local/main)}"
+export BRANCH BRANCH_CONFIG="${BRANCH%%/*}.branch.env" PIPELINE
+
+# discover CONFIG after BRANCH_CONFIG is known
+CONFIG="${CONFIG:-}"
+find_var() {
+  local name="$1" ; shift 2
+  local default="$1" ; shift 2
+  local env_file value
+  for env_file in "$@"; do
+    [[ -f "$env_file" ]] || continue
+    value="$(sed -n "/^$name=/ { s/^$name=//; p ; q }" "$env_file" | xargs)"
+    [[ -n "$value" ]] && { echo "$value"; return 0; }
+  done
+  echo "$default"
+}
+CONFIG="${CONFIG:-$(find_var CONFIG default: 'default.env' \
+                             search: "$PIPELINE/.env"           "$PIPELINE/config/.env" \
+                                     "$PIPELINE/$BRANCH_CONFIG" "$PIPELINE/config/$BRANCH_CONFIG" \
+                                     "config/$BRANCH_CONFIG")}" 
+export CONFIG
+
+read_vars() {
+  for cfg in "$@"; do
+    [[ -f "$cfg" ]] || continue
+    while IFS='=' read -r k v; do
+      [[ "$k" == \#* || -z "$k" ]] && continue
+      export "$k"="$v"
+    done <"$cfg"
+  done
+}
+
+read_vars "config/$BRANCH_CONFIG" "config/$CONFIG" \
+          "$PIPELINE/config/$CONFIG" "$PIPELINE/$CONFIG" \
+          "$PIPELINE/config/$BRANCH_CONFIG" "$PIPELINE/$BRANCH_CONFIG" \
+          "$PIPELINE/config/.env" "$PIPELINE/.env"
+
+for dir in ".github/hooks/pre-build.d" "$PIPELINE/hooks/pre-build.d"; do
+  [[ -d "$dir" ]] || { echo "no pre-build hooks at $dir"; continue; }
+  for f in "$dir"/*; do
+    [[ -f "$f" && -x "$f" ]] || continue
+    echo "running: $f"
+    "$f"
+  done
+done
+
+if [[ -x "$PIPELINE/build.sh" ]]; then
+  exec "$PIPELINE/build.sh"
+else
+  echo "No $PIPELINE/build.sh; implement build entrypoint."
+  exit 1
+fi
