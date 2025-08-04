@@ -51,11 +51,12 @@ Specifically a 'watchman', 'builders' and 'inspectors'.
 
 ## TODO
 - Add post-build hooks and prepare payload to remaining builders (Windows, if any)
-- Create .github/workflows/harbour-master.hm.yml in polperro and wire routing to inspectors
+- Create harbour-master/the-coopers-inn/harbour-master.hm.yml bench item and wire routing to inspectors in harbour repos; copy from bench into harbour workflows when adopting
 - Standardize env_json usage across workflows
 - Add bash-spec runner to scripts menu and/or post-build hooks
 - Add PHP Composer builder with Beethoven
 - Add Go builder (go build/test)
+- Name the pub (decide canonical bench directory name)
 
 ## Not-To-Do (for now)
 - Watchman pre/post hooks. If needed later, create specialized watchmen with pre.watchman-*/post.watchman-* hooks.
