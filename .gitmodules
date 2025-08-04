@@ -1,3 +1,6 @@
 [submodule "polperro"]
 	path = polperro
 	url = git@github.com:keithy/polperro.git
+[submodule "harbour-master"]
+	path = harbour-master
+	url = git@github.com:keithy/harbour-master.git
