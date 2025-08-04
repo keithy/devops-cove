@@ -40,6 +40,15 @@ read_vars "config/$BRANCH_CONFIG" "config/$CONFIG" \
           "$PIPELINE/config/$BRANCH_CONFIG" "$PIPELINE/$BRANCH_CONFIG" \
           "$PIPELINE/config/.env" "$PIPELINE/.env"
 
+# Handle inheritance
+if [[ -n "${INHERITS:-}" ]]; then
+  if [[ -d "$INHERITS" ]]; then
+    cp -rvn "$INHERITS/." "$PIPELINE"
+  else
+    echo "Pipeline folder ($INHERITS) set by INHERITS does not exist"
+  fi
+fi
+
 for dir in ".github/hooks/pre-build.d" "$PIPELINE/hooks/pre-build.d"; do
   [[ -d "$dir" ]] || { echo "no pre-build hooks at $dir"; continue; }
   for f in "$dir"/*; do
