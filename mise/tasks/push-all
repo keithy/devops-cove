@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+#MISE description="Push root and all submodules per .gitmodules"
+set -euo pipefail
+
+git push || true
+git submodule foreach 'git push || true' || true
+
+echo "Done."
