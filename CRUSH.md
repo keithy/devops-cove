@@ -20,6 +20,7 @@
 - **Error Handling**: Standard patterns for each language
 - **Formatting**: Consistent with each project's ecosystem
 - In documentation the keywords listed in ./polperro/docs/ideas.md should be italizised.
+- In github actions put an empty line between steps.
 
 ## Project Structure
 - '/harbour-master' - Git submodule (defines shared workflows)
@@ -47,4 +48,15 @@ However, the workflows are not required to be in these empty templates either. I
 the `harbour-master` project. Where there is a 'menu' or 'bench' of available workflow actors. The Navy,
 configuring the local installation of a harbour will select the workflows from the 'harbour-master'. 
 Specifically a 'watchman', 'builders' and 'inspectors'.
+
+## TODO
+- Add post-build hooks and prepare payload to remaining builders (Windows, if any)
+- Create .github/workflows/harbour-master.hm.yml in polperro and wire routing to inspectors
+- Standardize env_json usage across workflows
+- Add bash-spec runner to scripts menu and/or post-build hooks
+- Add PHP Composer builder with Beethoven
+- Add Go builder (go build/test)
+
+## Not-To-Do (for now)
+- Watchman pre/post hooks. If needed later, create specialized watchmen with pre.watchman-*/post.watchman-* hooks.
 
