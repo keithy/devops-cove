@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+#MISE description="Make all *.sh files executable across repo and submodules"
+set -euo pipefail
+
+find . -type f -name "*.sh" -execdir chmod +x "{}" +
+
+echo "Marked all *.sh as executable (including submodules)."

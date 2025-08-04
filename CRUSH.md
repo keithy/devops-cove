@@ -2,7 +2,7 @@
 
 ## Build Commands
 - `mise install` - Install tools from config.toml
-- `mise run <task>` - Run mise tasks
+- `mise run <task>` - Run mise tasks (e.g. `mise run make-sh-exec`)
 
 ## Test Commands
 - Test commands vary by submodule - check individual project READMEs
