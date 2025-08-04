@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+#MISE description="Commit and push root and all submodules (.gitmodules)"
+set -euo pipefail
+
+msg="${MSG:-chore: sync changes}"
+
+commit_push() {
+  repo_dir="$1"
+  shift || true
+  if [[ -d "$repo_dir/.git" ]]; then
+    echo "Committing in $repo_dir"
+    git -C "$repo_dir" add -A
+    if ! git -C "$repo_dir" diff --cached --quiet; then
+      git -C "$repo_dir" commit -m "$msg" || true
+      git -C "$repo_dir" push || true
+    else
+      echo "No changes in $repo_dir"
+    fi
+  fi
+}
+
+commit_push "."
+
+git submodule foreach 'git add -A && (git diff --cached --quiet || git commit -m "'$msg'" || true) && git push || true' || true
+
+echo "Done."

@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+#MISE description="Git status for root and all submodules"
+set -euo pipefail
+
+echo "Root:"; git status -s
+
+git submodule foreach 'echo "--- $name ---"; git status -s' || true
