@@ -19,7 +19,7 @@
 - **Types**: Type checking per project requirements
 - **Error Handling**: Standard patterns for each language
 - **Formatting**: Consistent with each project's ecosystem
-- In documentation the keywords listed in ./polperro/docs/ideas.md should be italizised.
+- In documentation the keywords listed in ./polperro/docs/ideas.md should be italicized. Use: *kegs*, *flagons*, *sacks*.
 - In github actions put an empty line between steps.
 
 ## Project Structure
