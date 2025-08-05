@@ -39,7 +39,7 @@
 
 The `developer-cove` project serves as a management hub for working on improvements to the eco-system.
 
-Harbour projects like `polerro` `fowey` `mevagissy` `looe` define build pipelines in a four level heirarchy;
+Harbour projects like `polperro` `fowey` `mevagissey` `looe` define build pipelines in a four level hierarchy;
 however here they should remain as fairly empty templates that enterprise user would clone/fork for different 
 contexts/use-cases/departments. Their users (The Navy) would populate their pipelines folders and github
 workflows will spot the changes and spawn build tasks. 
