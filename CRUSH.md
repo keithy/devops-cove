@@ -45,8 +45,8 @@ contexts/use-cases/departments. Their users (The Navy) would populate their pipe
 workflows will spot the changes and spawn build tasks. 
 
 However, the workflows are not required to be in these empty templates either. Instead they are managed in
-the `harbour-master` project. Where there is a 'menu' or 'bench' of available workflow actors. The Navy,
-configuring the local installation of a harbour will select the workflows from the 'harbour-master'. 
+the `harbour-master` project. Where there are 'pubs' full of available workflow-actors. The Navy,
+configuring the local installation of a harbour will select the workflow-actors from the pub. 
 Specifically a 'watchman', 'builders' and 'inspectors'.
 
 ## TODO
