@@ -49,6 +49,10 @@ the `harbour-master` project. Where there are 'pubs' full of available workflow-
 configuring the local installation of a harbour will select the workflow-actors from the pub. 
 Specifically a 'watchman', 'builders' and 'inspectors'.
 
+### Hook Order
+Builder: 10-pre-build → 20-post-build
+Harbour-Master: 30-verify → 40-pre-publish → 50-publish → 60-post-publish → 70-report
+
 ## TODO
 - Add post-build hooks and prepare payload to remaining builders (Windows, if any)
 - Create harbour-master/the-coopers-inn/harbour-master.hm.yml bench item and wire routing to inspectors in harbour repos; copy from bench into harbour workflows when adopting
