@@ -23,7 +23,7 @@
 - In github actions put an empty line between steps.
 
 ## Project Structure
-- '/harbour-master' - Git submodule (defines shared workflows)
+- '/harbour-master' - Git submodule (defines shared workflows) (repo: the-github-taverns)
 - `/polperro` - Git submodule (kegs/containers metaphor)
 - `/mise` - Tool configuration
 - Uses devops-cove as umbrella for multiple submodules

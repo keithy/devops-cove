@@ -2,5 +2,5 @@
 	path = polperro
 	url = git@github.com:keithy/polperro.git
 [submodule "harbour-master"]
-	path = harbour-master
+	path = the-github-taverns
 	url = git@github.com:keithy/the-github-taverns.git
