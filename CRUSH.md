@@ -3,6 +3,8 @@
 ## Build Commands
 - `mise install` - Install tools from config.toml
 - `mise run <task>` - Run mise tasks (e.g. `mise run make-sh-exec`)
+  - Lint builders: `mise run lint-builders`
+  - Sync builders: `mise run sync-builders`
 - Local watchman: `mise run linus-local` (run from a keg pipeline dir)
 
 ## Test Commands
