@@ -3,8 +3,14 @@
 ## Build Commands
 - `mise install` - Install tools from config.toml
 - `mise run <task>` - Run mise tasks (e.g. `mise run make-sh-exec`)
-  - Lint builders: `mise run lint-builders`
-  - Sync builders: `mise run sync-builders`
+  - Codebase steps sync (default: --diff): `mise run codebase-steps-sync`
+  - Summary: `mise run codebase-steps-sync -- --summary`
+  - Diff: `mise run codebase-steps-sync -- --diff`
+  - Verbose: `mise run codebase-steps-sync -- --verbose`
+  - Quiet: `mise run codebase-steps-sync -- --quiet`
+  - Doc: `mise run codebase-steps-sync -- --doc`
+  - Apply: `mise run codebase-steps-sync -- --sync`
+  - Apply + verbose: `mise run codebase-steps-sync -- --sync --verbose`
 - Local watchman: `mise run linus-local` (run from a keg pipeline dir)
 
 ## Test Commands
@@ -56,13 +62,8 @@ Builder: 10-pre-build → 20-post-build
 Harbour-Master: 30-verify → 40-pre-publish → 50-publish → 60-post-publish → 70-report
 
 ## TODO
-- Add post-build hooks and prepare payload to remaining builders (Windows, if any)
-- Create harbour-master/the-coopers-inn/harbour-master.hm.yml bench item and wire routing to inspectors in harbour repos; copy from bench into harbour workflows when adopting
-- Standardize env_json usage across workflows
-- Add bash-spec runner to scripts menu and/or post-build hooks
 - Add PHP Composer builder with Beethoven
-- Add Go builder (go build/test)
-- Name the pub (decide canonical bench directory name)
+- Remove hard coded reference to "builder"
 
 ## Not-To-Do (for now)
 - Watchman pre/post hooks. If needed later, create specialized watchmen with pre.watchman-*/post.watchman-* hooks.
