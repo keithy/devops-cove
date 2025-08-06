@@ -152,8 +152,8 @@ if summary && !quiet
       uniques += 1 if name_counts[n] == 1
     end
     line = "- #{rel}: steps=#{c[:total]} unique=#{uniques} shared=#{c[:match]}"
-    line += " differences detected=#{c[:diff]}" if c[:diff] > 0
+    line += " differences_detected=#{c[:diff]}" if c[:diff] > 0
     puts line
   end
 end
-exit status
+exit (ENV['MISE_TASK_NAME'].to_s.empty? || quiet ? status : 0)
