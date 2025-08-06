@@ -1,0 +1,159 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+require 'yaml'
+require 'optparse'
+require 'find'
+
+mode = :lint
+verbose = false
+summary = false
+diff_flag = true
+quiet = false
+doc = false
+canon_list = []
+OptionParser.new do |o|
+  o.on('--sync') { mode = :sync }
+  o.on('--verbose') { verbose = true }
+  o.on('--summary') { summary = true }
+  o.on('--diff') { diff_flag = true }
+  o.on('--quiet') { quiet = true }
+  o.on('--doc') { doc = true }
+  o.on('--canon FILE', 'Canonical file (repeatable)') { |f| canon_list << File.expand_path(f) }
+end.parse!
+
+if doc
+  summary = true
+  verbose = true
+end
+
+md = doc
+
+if verbose && !quiet
+  puts "\n## Steps"
+end
+
+DIM = "\e[2m"
+RESET = "\e[0m"
+if md
+  DIM = "*"
+  RESET = "*"
+end
+
+root = File.expand_path(File.join(__dir__, '..', '..'))
+refs = {}
+name_counts = Hash.new(0)
+files = []
+Find.find(root) do |p|
+  next unless p.end_with?('.yml', '.yaml')
+  next if File.directory?(p)
+  files << p
+end
+files.sort!
+
+get_steps = lambda do |path|
+  y = YAML.load_file(path) rescue nil
+  return [] unless y.is_a?(Hash)
+  steps = []
+  (y['jobs'] || {}).each_value do |job|
+    s = job.is_a?(Hash) ? job['steps'] : nil
+    next unless s.is_a?(Array)
+    s.each { |e| steps << e if e.is_a?(Hash) && e['name'].is_a?(String) }
+  end
+  steps
+end
+
+seed_files = canon_list.empty? ? files : canon_list
+seed_files.each do |f|
+  next unless files.include?(f) || File.exist?(f)
+  get_steps.call(f).each do |s|
+    name = s['name']
+    refs[name] ||= { file: f, body: s.reject { |k,_| k == 'id' } }
+  end
+end
+files.each do |f|
+  get_steps.call(f).each do |s|
+    name = s['name']
+    refs[name] ||= { file: f, body: s.reject { |k,_| k == 'id' } }
+    name_counts[name] += 1
+  end
+end
+
+status = 0
+counts = Hash.new { |h,k| h[k] = { total: 0, match: 0, diff: 0 } }
+files.each do |f|
+  y = YAML.load_file(f) rescue nil
+  next unless y.is_a?(Hash) && y['jobs'].is_a?(Hash)
+  changed = false
+  printed_header = false
+  y['jobs'].each do |_, job|
+    next unless job.is_a?(Hash) && job['steps'].is_a?(Array)
+    job['steps'].each_with_index do |s, i|
+      next unless s.is_a?(Hash) && s['name'].is_a?(String)
+      ref = refs[s['name']]
+      cur = s.reject { |k,_| k == 'id' }
+      counts[f][:total] += 1
+      if verbose && !printed_header
+        puts "\n- #{f.sub(%r{^#{Regexp.escape(root)}/?}, '')}"
+        printed_header = true
+      end
+      if verbose
+        if ref
+          if ref[:file] == f
+            puts "  - `#{s['name']}`"
+          else
+            match = (cur == ref[:body]) ? 'match' : 'diff'
+            shared_path = ref[:file].sub(%r{^#{Regexp.escape(root)}/?}, '')
+            puts "  - `#{s['name']}` shared: #{DIM}#{shared_path}#{RESET}" if match == 'match'
+            puts "  - `#{s['name']}` diff:  #{DIM}#{shared_path}#{RESET}" if match == 'diff'
+            counts[f][:match] += 1 if match == 'match'
+            counts[f][:diff]  += 1 if match == 'diff'
+          end
+        end
+      else
+        if ref && ref[:file] != f
+          match = (cur == ref[:body]) ? 'match' : 'diff'
+          counts[f][:match] += 1 if match == 'match'
+          counts[f][:diff]  += 1 if match == 'diff'
+        end
+      end
+      next unless ref
+      if cur != ref[:body]
+        if mode == :sync
+          puts %(sync "#{s['name']}" #{DIM}(#{ref[:file]} -> #{f})#{RESET})
+          job['steps'][i] = Marshal.load(Marshal.dump(ref[:body]))
+          changed = true
+        else
+          if diff_flag || verbose
+            puts %(canonical step "#{s['name']}" #{DIM}(#{ref[:file]})#{RESET})
+            puts YAML.dump(ref[:body]).strip
+            puts
+            puts DIM + "#{f}:" + RESET
+            puts YAML.dump(cur).strip
+          end
+          status = 1
+        end
+      end
+    end
+  end
+  if changed
+    File.write(f, y.to_yaml)
+    puts "[SYNC] #{f}"
+  end
+end
+if summary && !quiet
+  puts "\n## Workflows Summary"
+  files.each do |f|
+    c = counts[f]
+    next if c[:total] == 0
+    rel = f.sub(%r{^#{Regexp.escape(root)}/?}, '')
+    uniques = 0
+    get_steps.call(f).each do |s|
+      n = s['name']
+      uniques += 1 if name_counts[n] == 1
+    end
+    line = "- #{rel}: steps=#{c[:total]} unique=#{uniques} shared=#{c[:match]}"
+    line += " differences detected=#{c[:diff]}" if c[:diff] > 0
+    puts line
+  end
+end
+exit status
