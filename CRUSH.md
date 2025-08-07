@@ -65,6 +65,12 @@ Harbour-Master: 30-verify → 40-pre-publish → 50-publish → 60-post-publish 
 
 ## TODO
 - Internalise/internaliser for the mise setup
+- Add yamllint task integration
+- Pre-commit hooks for workflows-lint/sync
+- Watchman multi-match resolution strategy (priority)
+- Builder matrix docs generator
+- CI to validate #BUILD headers resolve uniquely
+- Hook packaging/versioning scheme
 
 ## Not-To-Do (for now)
 - Watchman pre/post hooks. If needed later, create specialized watchmen with pre.watchman-*/post.watchman-* hooks.
