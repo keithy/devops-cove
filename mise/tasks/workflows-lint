@@ -1,0 +1,175 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+require 'yaml'
+require 'optparse'
+require 'find'
+
+mode = :check
+quiet = false
+paths = []
+OptionParser.new do |o|
+  o.on('--check') { mode = :check }
+  o.on('--fix') { mode = :fix }
+  o.on('--quiet') { quiet = true }
+  o.on('--path PATH', 'Limit to path (repeatable)') { |p| paths << File.expand_path(p) }
+end.parse!
+
+root = File.expand_path(File.join(__dir__, '..', '..'))
+files = []
+Find.find(root) do |p|
+  next unless p.end_with?('.yml', '.yaml')
+  next if File.directory?(p)
+  next if p.include?('/.git/')
+  files << p
+end
+files.select! { |f| paths.empty? || paths.any? { |p| f.start_with?(p) } }
+files.sort!
+
+violations = []
+changed_any = false
+
+def add_violation(list, file, idx, msg)
+  list << [file, idx, msg]
+end
+
+def ensure_blank_lines_before_steps_blocks(text)
+  lines = text.lines
+  out = []
+  in_steps = false
+  steps_indent = nil
+  lines.each do |line|
+    if line =~ /^(\s*)steps:\s*$/
+      in_steps = true
+      steps_indent = Regexp.last_match(1)
+      out << "\n" if out.any? && out[-1] !~ /^\s*$/
+      out << line
+      next
+    end
+
+    if in_steps
+      if line =~ /^(\s*)-\s+(name|uses):/
+        indent = Regexp.last_match(1)
+        if steps_indent && indent.start_with?(steps_indent)
+          out << "\n" if out.any? && out[-1] !~ /^\s*$/
+        end
+      end
+      if steps_indent && line =~ /^\S/ && !line.start_with?(steps_indent)
+        in_steps = false
+        steps_indent = nil
+      end
+    end
+
+    out << line
+  end
+  out.join
+end
+
+files.each do |f|
+  txt = File.read(f)
+  y = YAML.load_file(f) rescue nil
+  unless y.is_a?(Hash)
+    next
+  end
+
+  %w[name jobs].each do |k|
+    add_violation(violations, f, nil, "missing top-level '#{k}'") unless y.key?(k)
+  end
+
+  if y['jobs'].is_a?(Hash)
+    y['jobs'].each do |_, job|
+      next unless job.is_a?(Hash)
+      steps = job['steps']
+      next unless steps.is_a?(Array)
+
+      steps.each_with_index do |s, i|
+        next unless s.is_a?(Hash)
+        requires_name = !(s.key?('uses') && !s.key?('run'))
+        if requires_name
+          unless s.key?('name') && s['name'].is_a?(String) && !s['name'].strip.empty?
+            add_violation(violations, f, i, 'step missing valid name')
+          end
+        end
+        if s.key?('uses') && s.key?('run')
+          add_violation(violations, f, i, 'step must not have both uses and run')
+        end
+        if s.key?('run') && !(s['run'].is_a?(String))
+          add_violation(violations, f, i, 'run must be string (block or single-line)')
+        end
+        if s.key?('id') && s.key?('name')
+          if mode == :fix
+            ordered = {}
+            %w[name id].each { |k| ordered[k] = s[k] if s.key?(k) }
+            (s.keys - %w[name id]).each { |k| ordered[k] = s[k] }
+            steps[i] = ordered
+            changed_any = true
+          else
+            keys = s.keys
+            add_violation(violations, f, i, 'name must precede id') unless keys.index('name') && keys.index('id') && keys.index('name') < keys.index('id')
+          end
+        end
+        if mode == :fix
+          if s.key?('env') && s['env'].is_a?(Hash)
+            s['env'] = s['env'].sort.to_h
+            changed_any = true
+          end
+          known = %w[name id uses with working-directory env run]
+          order = known
+          ordered = {}
+          pre_env = (s.keys - ['run']) - (known)
+          %w[name id uses with working-directory].each { |k| ordered[k] = s[k] if s.key?(k) }
+          pre_env.sort.each { |k| ordered[k] = s[k] }
+          ordered['env'] = s['env'] if s.key?('env')
+          ordered['run'] = s['run'] if s.key?('run')
+          (s.keys - ordered.keys).each { |k| ordered[k] = s[k] }
+          steps[i] = ordered
+        end
+      end
+    end
+  end
+
+  if mode == :fix
+    # Work on original text for spacing fixes
+    text = txt.dup
+    # Ensure blank line before any top-level key
+    text.gsub!(/(^|\A)(.*?)(\n[a-zA-Z_][a-zA-Z0-9_-]*:\n)/m) do
+      pre = Regexp.last_match(1) + Regexp.last_match(2)
+      key = Regexp.last_match(3)
+      pre += "\n" unless pre.end_with?("\n\n")
+      pre + key
+    end
+    # Ensure blank line after steps: and between steps
+    text = ensure_blank_lines_before_steps_blocks(text)
+    text.gsub!(/^((?:\s*-\s+(?:name|uses):.*\n)(?:^(?!\s*-\s+(?:name|uses):).*$\n)+)(?=\s*-\s+(?:name|uses):|\z)/m) { |block| block.rstrip + "\n\n" }
+    text.gsub!(/[ \t]+$/m, '')
+    text.gsub!(/\n{3,}/m, "\n\n")
+    if text != txt
+      File.write(f, text)
+      changed_any = true
+      puts f unless quiet
+    end
+  else
+    if txt.match?(/\n\s*-\s+(?:name|uses):/)
+      txt.split(/\n/).each_with_index do |ln, idx|
+        if ln =~ /^\s*-\s+(?:name|uses):/
+          prev = idx > 0 ? txt.lines[idx-1] : ""
+          add_violation(violations, f, nil, 'no blank line before step') if prev && prev !~ /^\s*$/
+        end
+      end
+    end
+    add_violation(violations, f, nil, 'missing blank line between steps') if txt.match?(/\n\s*-\s+(?:name|uses):.*\n\s*-\s+(?:name|uses):/)
+    if txt =~ /\A---?\n/; body = txt.sub(/\A---?\n/, ''); else body = txt.dup; end
+    body_wo_first = body.sub(/\A.*?\n([a-zA-Z_][a-zA-Z0-9_-]*:\n)/m) { |m| "\n#FIRST#\n" + m }
+    add_violation(violations, f, nil, 'no blank line before top-level section') if body_wo_first.match?(/[^\n]\n[a-zA-Z_][a-zA-Z0-9_-]*:\n/)
+    add_violation(violations, f, nil, 'tab indentation found') if txt.include?("\t")
+    add_violation(violations, f, nil, 'trailing whitespace found') if txt.match?(/[ \t]+$/)
+  end
+end
+
+if mode == :check
+  unless violations.empty?
+    violations.each { |v| puts([v[0], v[1] ? "step #{v[1]}" : nil, v[2]].compact.join(': ')) } unless quiet
+    exit 1
+  end
+else
+  exit(changed_any ? 0 : 0)
+end

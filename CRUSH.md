@@ -3,14 +3,16 @@
 ## Build Commands
 - `mise install` - Install tools from config.toml
 - `mise run <task>` - Run mise tasks (e.g. `mise run make-sh-exec`)
-  - Codebase steps sync (default: --diff): `mise run codebase-steps-sync`
-  - Summary: `mise run codebase-steps-sync -- --summary`
-  - Diff: `mise run codebase-steps-sync -- --diff`
-  - Verbose: `mise run codebase-steps-sync -- --verbose`
-  - Quiet: `mise run codebase-steps-sync -- --quiet`
-  - Doc: `mise run codebase-steps-sync -- --doc`
-  - Apply: `mise run codebase-steps-sync -- --sync`
-  - Apply + verbose: `mise run codebase-steps-sync -- --sync --verbose`
+  - Workflows lint (check): `mise run workflows-lint -- --check`
+  - Workflows lint (fix): `mise run workflows-lint -- --fix`
+  - Workflows Steps Sync (default: --diff): `mise run workflows-steps-sync`
+  - Summary: `mise run workflows-steps-sync -- --summary`
+  - Diff: `mise run workflows-steps-sync -- --diff`
+  - Verbose: `mise run workflows-steps-sync -- --verbose`
+  - Quiet: `mise run workflows-steps-sync -- --quiet`
+  - Doc: `mise run workflows-steps-sync -- --doc`
+  - Apply: `mise run workflows-steps-sync -- --sync`
+  - Apply + verbose: `mise run workflows-steps-sync -- --sync --verbose`
 - Local watchman: `mise run linus-local` (run from a keg pipeline dir)
 
 ## Test Commands
@@ -28,7 +30,7 @@
 - **Error Handling**: Standard patterns for each language
 - **Formatting**: Consistent with each project's ecosystem
 - In documentation the keywords listed in ./polperro/docs/ideas.md should be italicized. Use: *kegs*, *flagons*, *sacks*.
-- In github actions put an empty line between steps.
+- In github actions put an empty line between steps, and a blank line before `jobs:`.
 
 ## Project Structure
 - '/harbour-master' - Git submodule (defines shared workflows) (repo: the-github-taverns)
