@@ -130,8 +130,27 @@ files.each do |f|
       if cur != ref[:body]
         if mode == :sync
           puts %(sync "#{s['name']}" #{DIM}(#{ref[:file]} -> #{f})#{RESET})
-          job['steps'][i] = Marshal.load(Marshal.dump(ref[:body]))
-          changed = true
+          orig = File.read(f)
+          canon_yaml = YAML.dump(ref[:body]).strip
+          step_name = s['name']
+          steps_indent = nil
+          orig.each_line do |ln|
+            if ln =~ /(\s*)steps:\s*$/
+              steps_indent = Regexp.last_match(1)
+            end
+          end
+          indent = steps_indent ? steps_indent + '  ' : '  '
+          pattern = /(^#{Regexp.escape(indent)}-\s+name:\s*#{Regexp.escape(step_name)}\s*\n(?:^(?!#{Regexp.escape(indent)}-\s+(?:name|uses):).*$\n)*)/m
+          if orig =~ pattern
+            block = Regexp.last_match(1)
+            trailing = block.end_with?("\n\n") ? "\n" : ""
+            canon_block = canon_yaml.split("\n").map.with_index { |l, idx| idx == 0 ? "#{indent}- #{l}" : "#{indent}  #{l}" }.join("\n") + "\n" + trailing
+            new_txt = orig.sub(pattern, canon_block)
+            File.write(f, new_txt)
+          else
+            job['steps'][i] = Marshal.load(Marshal.dump(ref[:body]))
+            changed = true
+          end
         else
           if diff_flag || verbose
             puts %(canonical step "#{s['name']}" #{DIM}(#{ref[:file]})#{RESET})
