@@ -87,7 +87,11 @@ end
 status = 0
 counts = Hash.new { |h,k| h[k] = { total: 0, match: 0, diff: 0 } } # diff = different bodies (same name)
 files.each do |f|
-  y = YAML.load_file(f) rescue nil
+  y = YAML.load_file(f) rescue :invalid
+  if y == :invalid
+    puts "- #{f.sub(%r{^#{Regexp.escape(root)}/?}, '')} [INVALID]" if verbose
+    next
+  end
   next unless y.is_a?(Hash) && y['jobs'].is_a?(Hash)
   changed = false
   printed_header = false
