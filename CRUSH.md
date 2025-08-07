@@ -64,7 +64,7 @@ Builder: 10-pre-build → 20-post-build
 Harbour-Master: 30-verify → 40-pre-publish → 50-publish → 60-post-publish → 70-report
 
 ## TODO
-- Remove hard coded reference to "builder"
+- Internalise/internaliser for the mise setup
 
 ## Not-To-Do (for now)
 - Watchman pre/post hooks. If needed later, create specialized watchmen with pre.watchman-*/post.watchman-* hooks.
