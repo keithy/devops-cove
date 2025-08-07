@@ -64,7 +64,6 @@ Builder: 10-pre-build → 20-post-build
 Harbour-Master: 30-verify → 40-pre-publish → 50-publish → 60-post-publish → 70-report
 
 ## TODO
-- Add PHP Composer builder with Beethoven
 - Remove hard coded reference to "builder"
 
 ## Not-To-Do (for now)
