@@ -168,6 +168,7 @@ if summary && !quiet
       end
     end
     line = "- #{rel}: steps=#{steps_in_file} unique=#{unique_steps} shared=#{shared_steps}"
+    line += " differences_detected=#{c[:diff]}" if c[:diff] > 0
     puts line
   end
 end
