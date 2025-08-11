@@ -57,10 +57,10 @@ workflows will spot the changes and spawn build tasks.
 However, the workflows are not required to be in these empty templates either. Instead they are managed in
 the `harbour-master` project. Where there are 'pubs' full of available workflow-actors. The Navy,
 configuring the local installation of a harbour will select the workflow-actors from the pub. 
-Specifically a 'watchman', 'builders' and 'inspectors'.
+Specifically a 'watchman', 'doozers' and 'inspectors'.
 
 ### Hook Order
-Builder: 10-pre-build → 20-post-build
+Doozer: 10-pre-build → 20-post-build
 Harbour-Master: 30-verify → 40-pre-publish → 50-publish → 60-post-publish → 70-report
 
 ## TODO
@@ -68,7 +68,7 @@ Harbour-Master: 30-verify → 40-pre-publish → 50-publish → 60-post-publish 
 - Add yamllint task integration
 - Pre-commit hooks for workflows-lint/sync
 - Watchman multi-match resolution strategy (priority)
-- Builder matrix docs generator
+- Doozer matrix docs generator
 - CI to validate #BUILD headers resolve uniquely
 - Hook packaging/versioning scheme
 
