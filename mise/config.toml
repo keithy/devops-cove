@@ -1,5 +1,6 @@
 [tools]
 "go:github.com/charmbracelet/crush" = "nightly"
+"npm:@anthropic-ai/claude-code" = "latest"
 
 [settings]
 sops.age_key_file = "{{env.HOME}}/.ssh/mise-age.txt" # needed for decryption of secrets by mise
