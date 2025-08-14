@@ -4,3 +4,6 @@
 [submodule "harbour-master"]
 	path = the-github-taverns
 	url = git@github.com:keithy/the-github-taverns.git
+[submodule "mylor"]
+	path = mylor
+	url = https://github.com/keithy/mylor
