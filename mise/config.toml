@@ -1,4 +1,5 @@
 [tools]
+"aqua:tweag/nickel" = "latest"
 "go:github.com/charmbracelet/crush" = "nightly"
 "npm:@anthropic-ai/claude-code" = "latest"
 
