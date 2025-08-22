@@ -7,3 +7,6 @@
 [submodule "mylor"]
 	path = mylor
 	url = https://github.com/keithy/mylor
+[submodule "bash-spec-2"]
+	path = cove-specs/bash-spec-2
+	url = https://github.com/keithy/bash-spec-2

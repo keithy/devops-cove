@@ -10,3 +10,4 @@ sops.age_key_file = "{{env.HOME}}/.ssh/mise-age.txt" # needed for decryption of 
 _.file = "mise/secrets.json"
 _.path = ['{{config_root}}/node_modules/.bin']
 SOPS_AGE_KEY_FILE = "{{env.HOME}}/.ssh/mise-age.txt" # needed for $> sops edit secrets.env.json
+COVE = "{{ config_root }}"
